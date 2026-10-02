@@ -1,15 +1,24 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
-
-from app.core.tool_registry import DEFAULT_TOOLS
-
-router = APIRouter()
+from pydantic import BaseModel, Field
 
 
-@router.get("/tools")
-async def list_tools() -> list[dict[str, str | bool]]:
-    return [
-        {"name": tool.name, "description": tool.description, "category": tool.category, "enabled": tool.enabled}
-        for tool in DEFAULT_TOOLS
-    ]
+class ChatMessage(BaseModel):
+    role: str = Field(..., description="Message role: user or assistant")
+    content: str = Field(..., description="Message content")
+
+
+class ChatRequest(BaseModel):
+    message: str = Field(..., min_length=1, description="User prompt")
+    model: str | None = Field(default=None, description="Model ID to use")
+    system_prompt: str | None = Field(default=None, description="Optional system prompt")
+    context: list[ChatMessage] = Field(default_factory=list, description="Optional prior conversation")
+    session_id: str | None = Field(default=None, description="Optional existing session ID")
+
+
+class ChatResponse(BaseModel):
+    response: str
+    model: str
+    provider: str
+    session_id: str
+    success: bool = True

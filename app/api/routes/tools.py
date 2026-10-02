@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import FastAPI
 
-from app.llm.providers import ProviderRouter
-from app.schemas.model import ModelListResponse
+from app.api.routes.chat import router as chat_router
+from app.api.routes.health import router as health_router
+from app.api.routes.models import router as models_router
+from app.api.routes.tools import router as tools_router
 
-router = APIRouter()
-provider_router = ProviderRouter()
 
-
-@router.get("/models", response_model=ModelListResponse)
-async def list_models() -> ModelListResponse:
-    return ModelListResponse(models=provider_router.list_models())
+def register_routes(app: FastAPI) -> None:
+    app.include_router(health_router, prefix="/api/v1")
+    app.include_router(models_router, prefix="/api/v1")
+    app.include_router(chat_router, prefix="/api/v1")
+    app.include_router(tools_router, prefix="/api/v1")
