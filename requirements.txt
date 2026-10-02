@@ -1,0 +1,7 @@
+DEBUG=true
+DATABASE_URL=sqlite:///./idafamu.db
+DEFAULT_MODEL=gpt-4o-mini
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+OPENROUTER_API_KEY=
+OLLAMA_BASE_URL=http://localhost:11434
