@@ -1,22 +1,35 @@
 from __future__ import annotations
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.routes import register_routes
+from app.db.session import init_db
+
+app = FastAPI(title="IDAFAMU", version="0.1.1")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
-class Settings(BaseSettings):
-    app_name: str = "IDAFAMU"
-    debug: bool = False
-    database_url: str = "sqlite:///./idafamu.db"
-    default_model: str = "gpt-4o-mini"
-    openai_api_key: str | None = None
-    openai_base_url: str | None = None
-    anthropic_api_key: str | None = None
-    anthropic_base_url: str | None = None
-    openrouter_api_key: str | None = None
-    openrouter_base_url: str | None = None
-    ollama_base_url: str | None = "http://localhost:11434"
-
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+@app.on_event("startup")
+def startup_event() -> None:
+    init_db()
 
 
-settings = Settings()
+register_routes(app)
+
+
+@app.get("/")
+async def root() -> dict[str, str]:
+    return {"message": "Welcome to IDAFAMU"}
+
+
+@app.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok", "service": "idafamu"}

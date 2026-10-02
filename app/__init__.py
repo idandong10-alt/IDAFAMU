@@ -1,17 +1,8 @@
-from __future__ import annotations
-
-from fastapi import APIRouter
-
-from app.config import settings
-
-router = APIRouter()
-
-
-@router.get("/app-info")
-async def app_info() -> dict[str, str | bool]:
-    return {
-        "app_name": settings.app_name,
-        "default_model": settings.default_model,
-        "debug": settings.debug,
-        "database_url": settings.database_url,
-    }
+fastapi>=0.115.0
+uvicorn>=0.30.0
+pydantic>=2.9.0
+pydantic-settings>=2.2.1
+sqlalchemy>=2.0.0
+python-dotenv>=1.0.1
+httpx>=0.27.0
+openai>=1.40.0

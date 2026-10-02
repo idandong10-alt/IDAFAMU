@@ -1,37 +1,15 @@
 from __future__ import annotations
 
-from typing import Any
-
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import register_routes
-from app.db.session import init_db
-
-app = FastAPI(title="IDAFAMU", version="0.1.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+from app.api.routes.chat import router as chat_router
+from app.api.routes.health import router as health_router
+from app.api.routes.models import router as models_router
+from app.api.routes.tools import router as tools_router
 
 
-@app.on_event("startup")
-def startup_event() -> None:
-    init_db()
-
-
-register_routes(app)
-
-
-@app.get("/")
-async def root() -> dict[str, str]:
-    return {"message": "Welcome to IDAFAMU"}
-
-
-@app.get("/health")
-async def health() -> dict[str, str]:
-    return {"status": "ok", "service": "idafamu"}
+def register_routes(app: FastAPI) -> None:
+    app.include_router(health_router, prefix="/api/v1")
+    app.include_router(models_router, prefix="/api/v1")
+    app.include_router(chat_router, prefix="/api/v1")
+    app.include_router(tools_router, prefix="/api/v1")

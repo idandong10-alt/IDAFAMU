@@ -1,31 +1,37 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
-class MemoryItem:
-    key: str
-    value: str
-    tags: list[str] = field(default_factory=list)
+class ToolDefinition:
+    name: str
+    description: str
+    category: str = "general"
+    enabled: bool = True
 
 
-class MemoryService:
+class ToolRegistry:
     def __init__(self) -> None:
-        self.memories: list[MemoryItem] = []
+        self._tools: dict[str, ToolDefinition] = {}
 
-    def add(self, key: str, value: str, tags: list[str] | None = None) -> MemoryItem:
-        item = MemoryItem(key=key, value=value, tags=tags or [])
-        self.memories.append(item)
-        return item
+    def register(self, tool: ToolDefinition) -> None:
+        self._tools[tool.name] = tool
 
-    def search(self, query: str) -> list[MemoryItem]:
-        q = query.lower().strip()
-        if not q:
-            return self.memories
-        return [item for item in self.memories if q in item.key.lower() or q in item.value.lower()]
+    def get(self, name: str) -> ToolDefinition | None:
+        return self._tools.get(name)
 
-    def summary(self) -> str:
-        if not self.memories:
-            return "No memories yet."
-        return "\n".join(f"- {m.key}: {m.value}" for m in self.memories)
+    def list(self) -> list[ToolDefinition]:
+        return list(self._tools.values())
+
+    def enabled_tools(self) -> list[ToolDefinition]:
+        return [tool for tool in self._tools.values() if tool.enabled]
+
+
+DEFAULT_TOOLS = [
+    ToolDefinition(name="filesystem_read", description="Read files from the active workspace", category="filesystem"),
+    ToolDefinition(name="filesystem_write", description="Create or modify files inside the active workspace", category="filesystem"),
+    ToolDefinition(name="shell_run", description="Run commands in a sandboxed project directory", category="shell"),
+    ToolDefinition(name="web_search", description="Search the web when network access is enabled", category="web"),
+    ToolDefinition(name="memory_save", description="Store a short memory fragment from the conversation", category="memory"),
+]

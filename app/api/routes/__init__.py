@@ -1,16 +1,29 @@
 from __future__ import annotations
 
-from app.core.agent_runtime import AgentRuntime
+from fastapi import APIRouter
 
-_runtime = AgentRuntime()
+from app.schemas.chat import ChatRequest, ChatResponse
+from app.services.chat_service import create_agent_response
+
+router = APIRouter()
 
 
-async def create_agent_response(
-    message: str,
-    *,
-    model: str | None = None,
-    system_prompt: str | None = None,
-    context: list[dict[str, str]] | None = None,
-) -> dict[str, str | bool]:
-    result = await _runtime.run(message, model=model, system_prompt=system_prompt, context=context)
-    return result
+@router.post("/chat", response_model=ChatResponse)
+async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
+    result = await create_agent_response(
+        payload.message,
+        model=payload.model,
+        system_prompt=payload.system_prompt,
+        context=[{"role": item.role, "content": item.content} for item in payload.context],
+    )
+    return ChatResponse(
+        response=str(result["response"]),
+        model=str(result["model"]),
+        provider=str(result["provider"]),
+        success=bool(result["success"]),
+    )
+
+
+@router.get("/chat/history")
+async def chat_history() -> dict[str, str]:
+    return {"message": "Chat history storage is enabled in the backend and ready for persistence."}
