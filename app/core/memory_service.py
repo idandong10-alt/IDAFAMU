@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -29,9 +29,9 @@ class ToolRegistry:
 
 
 DEFAULT_TOOLS = [
-    ToolDefinition(name="filesystem_read", description="Read files from a working directory", category="filesystem"),
-    ToolDefinition(name="filesystem_write", description="Write or edit files in a working directory", category="filesystem"),
-    ToolDefinition(name="shell_run", description="Run shell commands in a sandboxed project directory", category="shell"),
+    ToolDefinition(name="filesystem_read", description="Read files from the current workspace", category="filesystem"),
+    ToolDefinition(name="filesystem_write", description="Create or edit files in the workspace", category="filesystem"),
+    ToolDefinition(name="shell_run", description="Run commands in a sandboxed project directory", category="shell"),
     ToolDefinition(name="web_search", description="Search the web when network access is available", category="web"),
-    ToolDefinition(name="memory_save", description="Store a memory snippet from the conversation", category="memory"),
+    ToolDefinition(name="memory_save", description="Store a short memory snippet from the conversation", category="memory"),
 ]

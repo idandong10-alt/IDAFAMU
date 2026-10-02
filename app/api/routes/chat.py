@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.core.tool_registry import DEFAULT_TOOLS
+from app.llm.providers import ProviderRouter
+from app.schemas.model import ModelListResponse
 
 router = APIRouter()
+provider_router = ProviderRouter()
 
 
-@router.get("/tools")
-async def list_tools() -> list[dict[str, str | bool]]:
-    return [
-        {"name": tool.name, "description": tool.description, "category": tool.category, "enabled": tool.enabled}
-        for tool in DEFAULT_TOOLS
-    ]
+@router.get("/models", response_model=ModelListResponse)
+async def list_models() -> ModelListResponse:
+    return ModelListResponse(models=provider_router.list_models())

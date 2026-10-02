@@ -1,25 +1,17 @@
 from __future__ import annotations
 
-import os
-from functools import lru_cache
+from fastapi import APIRouter
 
-from pydantic import BaseModel
+from app.config import settings
 
-
-class Settings(BaseModel):
-    app_name: str = "IDAFAMU"
-    debug: bool = bool(os.getenv("DEBUG", "false").lower() == "true")
-    database_url: str = os.getenv("DATABASE_URL", "sqlite:///./idafamu.db")
-    default_model: str = os.getenv("DEFAULT_MODEL", "gpt-4o-mini")
-    openai_api_key: str | None = os.getenv("OPENAI_API_KEY")
-    anthropic_api_key: str | None = os.getenv("ANTHROPIC_API_KEY")
-    openrouter_api_key: str | None = os.getenv("OPENROUTER_API_KEY")
-    ollama_base_url: str | None = os.getenv("OLLAMA_BASE_URL")
+router = APIRouter()
 
 
-@lru_cache(maxsize=1)
-def get_settings() -> Settings:
-    return Settings()
-
-
-settings = get_settings()
+@router.get("/app-info")
+async def app_info() -> dict[str, str | bool]:
+    return {
+        "app_name": settings.app_name,
+        "default_model": settings.default_model,
+        "debug": settings.debug,
+        "database_url": settings.database_url,
+    }

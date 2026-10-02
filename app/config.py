@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import APIRouter
 
-from app.api.routes.chat import router as chat_router
-from app.api.routes.health import router as health_router
-from app.api.routes.models import router as models_router
-from app.api.routes.tools import router as tools_router
+from app.core.tool_registry import DEFAULT_TOOLS
+
+router = APIRouter()
 
 
-def register_routes(app: FastAPI) -> None:
-    app.include_router(health_router, prefix="/api/v1")
-    app.include_router(chat_router, prefix="/api/v1")
-    app.include_router(models_router, prefix="/api/v1")
-    app.include_router(tools_router, prefix="/api/v1")
+@router.get("/tools")
+async def list_tools() -> list[dict[str, str | bool]]:
+    return [
+        {"name": tool.name, "description": tool.description, "category": tool.category, "enabled": tool.enabled}
+        for tool in DEFAULT_TOOLS
+    ]
