@@ -1,15 +1,23 @@
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import APIRouter
 
-from app.api.routes.chat import router as chat_router
-from app.api.routes.health import router as health_router
-from app.api.routes.models import router as models_router
-from app.api.routes.tools import router as tools_router
+from app.core.tool_executor import ToolExecutor
+from app.schemas.tool import ToolExecutionRequest
+
+router = APIRouter()
+executor = ToolExecutor()
 
 
-def register_routes(app: FastAPI) -> None:
-    app.include_router(health_router, prefix="/api/v1")
-    app.include_router(models_router, prefix="/api/v1")
-    app.include_router(chat_router, prefix="/api/v1")
-    app.include_router(tools_router, prefix="/api/v1")
+@router.get("/tools")
+async def list_tools() -> list[dict[str, str | bool]]:
+    return [
+        {"name": tool.name, "description": tool.description, "category": tool.category, "enabled": tool.enabled}
+        for tool in executor.list_tools()
+    ]
+
+
+@router.post("/tools/execute")
+async def execute_tool(payload: ToolExecutionRequest) -> dict[str, object]:
+    result = await executor.execute(payload.tool_name, **(payload.arguments or {}))
+    return result
